@@ -6,7 +6,7 @@ const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 const { mapDBToModelAlbum } = require('../../utils');
 
-class AlbumService {
+class AlbumsService {
   constructor() {
     this._pool = new Pool();
   }
@@ -58,7 +58,7 @@ class AlbumService {
 
   async deleteAlbumById(id) {
     const query = {
-      text: 'DELETE FROM notes WHERE id = $1 RETURNING id',
+      text: 'DELETE FROM album WHERE id = $1 RETURNING id',
       values: [id],
     };
     const result = await this._pool.query(query);
@@ -69,4 +69,4 @@ class AlbumService {
   }
 }
 
-module.exports = AlbumService;
+module.exports = AlbumsService;
