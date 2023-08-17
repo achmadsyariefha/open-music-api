@@ -1,5 +1,3 @@
-/* eslint no-underscore-dangle: 0 */
-
 const autoBind = require('auto-bind');
 
 class SongsHandler {

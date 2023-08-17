@@ -1,5 +1,3 @@
-/* eslint no-underscore-dangle: 0 */
-
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
 const InvariantError = require('../../exceptions/InvariantError');
