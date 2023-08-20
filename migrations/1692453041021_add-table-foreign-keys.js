@@ -15,7 +15,7 @@ exports.up = (pgm) => {
 
 exports.down = (pgm) => {
   // menghapus semua constraint
+  pgm.dropConstraint('playlist_songs', 'fk_playlist_songs.playlistId_playlists.id');
+  pgm.dropConstraint('playlist_songs', 'fk_playlist_songs.songId_songs.id');
   pgm.dropConstraint('playlists', 'fk_playlist.username_users.id');
-  pgm.dropConstraint('playlists_songs', 'fk_playlists_songs.playlistId_playlists.id');
-  pgm.dropConstraint('playlists_songs', 'fk_playlists_songs.songId_songs.id');
 };

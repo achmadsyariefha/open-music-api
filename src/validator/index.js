@@ -5,6 +5,8 @@ const {
   PutAuthenticationPayloadSchema,
   DeleteAuthenticationPayloadSchema,
 } = require('./authentications/schema');
+const { CollaborationPayloadSchema } = require('./collaborations/schema');
+const { PostPlaylistPayloadSchema, PostSongToPlaylistPayloadSchema } = require('./playlists/schema');
 const { SongsPayloadSchema } = require('./songs/schema');
 const { UserPayloadSchema } = require('./users/schema');
 
@@ -56,9 +58,35 @@ const AuthenticationsValidator = {
   },
 };
 
+const PlaylistsValidator = {
+  validatePostPlaylistPayload: (payload) => {
+    const validationResult = PostPlaylistPayloadSchema.validate(payload);
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+  validatePostSongToPlaylistPayload: (payload) => {
+    const validationResult = PostSongToPlaylistPayloadSchema.validate(payload);
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+};
+
+const CollaborationsValidator = {
+  validateCollaborationPayload: (payload) => {
+    const validationResult = CollaborationPayloadSchema.validate(payload);
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+};
+
 module.exports = {
   AlbumsValidator,
   SongsValidator,
   UsersValidator,
   AuthenticationsValidator,
+  PlaylistsValidator,
+  CollaborationsValidator,
 };
