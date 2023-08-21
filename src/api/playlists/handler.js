@@ -32,7 +32,8 @@ class PlaylistsHandler {
 
   async getPlaylistsHandler(request) {
     const { id: username } = request.auth.credentials;
-    const playlists = this._playlistsService.getPlaylists(username);
+    const playlists = await this._playlistsService.getPlaylists(username);
+
     return {
       status: 'success',
       data: {
@@ -42,7 +43,7 @@ class PlaylistsHandler {
   }
 
   async deletePlaylistByIdHandler(request) {
-    const id = request.params;
+    const { id } = request.params;
     const { id: username } = request.auth.credentials;
 
     await this._playlistsService.verifyPlaylistOwner(id, username);
@@ -56,7 +57,7 @@ class PlaylistsHandler {
 
   async postSongToPlaylistHandler(request, h) {
     this._validator.validatePostSongToPlaylistPayload(request.payload);
-    const { playlistId } = request.params;
+    const { id: playlistId } = request.params;
     const { songId } = request.payload;
     const { id: userId } = request.auth.credentials;
 
@@ -71,25 +72,25 @@ class PlaylistsHandler {
     return response;
   }
 
-  async getSongsFromPlaylisthandler(request) {
-    const { playlistId } = request.params;
+  async getSongsFromPlaylistHandler(request) {
     const { id: userId } = request.auth.credentials;
+    const { id: playlistId } = request.params;
 
     await this._playlistsService.verifyPlaylistAccess(playlistId, userId);
-    const playlist = await this._playlistsService.getPlaylistById(playlistId);
+    const playlists = await this._playlistsService.getPlaylistById(playlistId, userId);
     const songs = await this._songsService.getSongsByPlaylist(playlistId);
-    playlist.songs = songs;
+    playlists.songs = songs;
 
     return {
       status: 'success',
       data: {
-        playlist,
+        playlist: playlists,
       },
     };
   }
 
   async deleteSongFromPlaylistHandler(request) {
-    const { playlistId } = request.params;
+    const { id: playlistId } = request.params;
     const { songId } = request.payload;
     const { id: userId } = request.auth.credentials;
 

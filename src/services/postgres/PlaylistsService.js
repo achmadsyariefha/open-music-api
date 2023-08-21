@@ -29,7 +29,11 @@ class PlaylistsService {
 
   async getPlaylists(username) {
     const query = {
-      text: 'SELECT * FROM playlists WHERE username = $1',
+      text: `SELECT playlists.id, playlists.name, users.username FROM playlists
+      LEFT JOIN collaborations ON collaborations."playlistId" = playlists.id
+      LEFT JOIN users ON users.id = playlists.username
+      WHERE playlists.username = $1 OR collaborations."userId" = $1
+      GROUP BY playlists.id, users.username`,
       values: [username],
     };
 
@@ -56,12 +60,12 @@ class PlaylistsService {
     }
   }
 
-  async getPlaylistById(id) {
+  async getPlaylistById(id, username) {
     const query = {
       text: `SELECT playlists.id, playlists.name, users.username FROM playlists
       LEFT JOIN users ON users.id = playlists.username
-      WHERE playlists.id = $1`,
-      values: [id],
+      WHERE playlists.id = $1 AND playlists.username = $2`,
+      values: [id, username],
     };
 
     const result = await this._pool.query(query);
@@ -69,6 +73,7 @@ class PlaylistsService {
     if (!result.rows.length) {
       throw new NotFoundError('Playlist tidak ditemukan');
     }
+    return result.rows[0];
   }
 
   async deletePlaylistById(id) {
@@ -102,7 +107,7 @@ class PlaylistsService {
     };
     const result = await this._pool.query(query);
     if (!result.rows.length) {
-      throw new NotFoundError('Gagal menghapus Lagu dalam playlist. id tidak ditemukan');
+      throw new InvariantError('Gagal menghapus Lagu dalam playlist. id tidak ditemukan');
     }
   }
 

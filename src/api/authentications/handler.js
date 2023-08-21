@@ -33,7 +33,7 @@ class AuthenticationsHandler {
     return response;
   }
 
-  async putAuthenticationhandler(request) {
+  async putAuthenticationHandler(request) {
     this._validator.validatePutAuthenticationPayload(request.payload);
 
     const { refreshToken } = request.payload;
