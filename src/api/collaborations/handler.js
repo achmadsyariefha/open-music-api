@@ -4,8 +4,8 @@ class CollaborationsHandler {
   constructor(collaborationsService, playlistsService, usersService, validator) {
     this._collaborationsService = collaborationsService;
     this._playlistsService = playlistsService;
-    this._validator = validator;
     this._usersService = usersService;
+    this._validator = validator;
 
     autoBind(this);
   }
