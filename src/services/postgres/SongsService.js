@@ -33,9 +33,26 @@ class SongsService {
     return result.rows[0].id;
   }
 
-  async getSongs() {
+  async getSongs(title, performer) {
+    if (title && performer) {
+      const query = {
+        text: 'SELECT id, title, performer FROM songs WHERE title ILIKE $1 AND performer ILIKE $2',
+        values: [`%${title}`, `%${performer}`],
+      };
+      const result = await this._pool.query(query);
+      return result.rows;
+    }
+
+    if (title || performer) {
+      const query = {
+        text: 'SELECT id, title, performer FROM songs WHERE title ILIKE $1 OR performer ILIKE $2',
+        values: [`%${title}`, `%${performer}`],
+      };
+      const result = await this._pool.query(query);
+      return result.rows;
+    }
     const result = await this._pool.query('SELECT id, title, performer FROM songs');
-    return result.rows.map(mapDBToModelSongs);
+    return result.rows;
   }
 
   async getSongById(id) {
@@ -91,6 +108,16 @@ class SongsService {
       LEFT JOIN playlist_songs ON playlist_songs."songId" = songs.id
       WHERE playlist_songs."playlistId" = $1`,
       values: [playlistId],
+    };
+
+    const result = await this._pool.query(query);
+    return result.rows.map(mapDBToModelSongs);
+  }
+
+  async getSongsByAlbum(albumId) {
+    const query = {
+      text: 'SELECT id, title, performer FROM songs WHERE "albumId" = $1',
+      values: [albumId],
     };
 
     const result = await this._pool.query(query);

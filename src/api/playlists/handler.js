@@ -64,6 +64,7 @@ class PlaylistsHandler {
     await this._songsService.getSongById(songId);
     await this._playlistsService.verifyPlaylistAccess(playlistId, userId);
     await this._playlistsService.addSongToPlaylist(playlistId, songId);
+    await this._playlistsService.addPlaylistActivities(playlistId, songId, userId, 'add');
     const response = h.response({
       status: 'success',
       message: 'Lagu berhasil ditambahkan ke dalam Playlist',
@@ -96,10 +97,27 @@ class PlaylistsHandler {
 
     await this._playlistsService.verifyPlaylistAccess(playlistId, userId);
     await this._playlistsService.deleteSongFromPlaylist(playlistId, songId);
+    await this._playlistsService.addPlaylistActivities(playlistId, songId, userId, 'delete');
 
     return {
       status: 'success',
       message: 'Lagu berhasil dihapus dari Playlist',
+    };
+  }
+
+  async getPlaylistActivitiesHandler(request) {
+    const { id: playlistId } = request.params;
+    const { id: userId } = request.auth.credentials;
+
+    await this._playlistsService.verifyPlaylistAccess(playlistId, userId);
+    const activities = await this._playlistsService.getPlaylistActivities(playlistId);
+
+    return {
+      status: 'success',
+      data: {
+        playlistId,
+        activities,
+      },
     };
   }
 }

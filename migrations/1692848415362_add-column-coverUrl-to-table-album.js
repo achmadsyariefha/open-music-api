@@ -2,6 +2,14 @@
 
 exports.shorthands = undefined;
 
-exports.up = pgm => {};
+exports.up = (pgm) => {
+  pgm.addColumn('album', {
+    coverUrl: {
+      type: 'TEXT',
+    },
+  });
+};
 
-exports.down = pgm => {};
+exports.down = (pgm) => {
+  pgm.dropColumn('album', '"coverUrl"');
+};
