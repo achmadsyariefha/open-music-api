@@ -6,6 +6,7 @@ const {
   DeleteAuthenticationPayloadSchema,
 } = require('./authentications/schema');
 const { CollaborationPayloadSchema } = require('./collaborations/schema');
+const ExportPlaylistsPayloadSchema = require('./exports/schema');
 const { PostPlaylistPayloadSchema, PostSongToPlaylistPayloadSchema } = require('./playlists/schema');
 const { SongsPayloadSchema } = require('./songs/schema');
 const { UserPayloadSchema } = require('./users/schema');
@@ -73,6 +74,16 @@ const PlaylistsValidator = {
   },
 };
 
+const ExportsValidator = {
+  validateExportPlaylistsPayload: (payload) => {
+    const validationResult = ExportPlaylistsPayloadSchema.validate(payload);
+
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+};
+
 const CollaborationsValidator = {
   validateCollaborationPayload: (payload) => {
     const validationResult = CollaborationPayloadSchema.validate(payload);
@@ -89,4 +100,5 @@ module.exports = {
   AuthenticationsValidator,
   PlaylistsValidator,
   CollaborationsValidator,
+  ExportsValidator,
 };

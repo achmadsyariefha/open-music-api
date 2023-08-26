@@ -37,7 +37,7 @@ class SongsService {
     if (title && performer) {
       const query = {
         text: 'SELECT id, title, performer FROM songs WHERE title ILIKE $1 AND performer ILIKE $2',
-        values: [`%${title}`, `%${performer}`],
+        values: [`%${title}%`, `%${performer}%`],
       };
       const result = await this._pool.query(query);
       return result.rows;
@@ -46,7 +46,7 @@ class SongsService {
     if (title || performer) {
       const query = {
         text: 'SELECT id, title, performer FROM songs WHERE title ILIKE $1 OR performer ILIKE $2',
-        values: [`%${title}`, `%${performer}`],
+        values: [`%${title}%`, `%${performer}%`],
       };
       const result = await this._pool.query(query);
       return result.rows;
