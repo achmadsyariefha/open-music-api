@@ -6,7 +6,7 @@ const {
   DeleteAuthenticationPayloadSchema,
 } = require('./authentications/schema');
 const { CollaborationPayloadSchema } = require('./collaborations/schema');
-const ExportPlaylistsPayloadSchema = require('./exports/schema');
+const { ExportPlaylistsPayloadSchema } = require('./exports/schema');
 const { PostPlaylistPayloadSchema, PostSongToPlaylistPayloadSchema } = require('./playlists/schema');
 const { SongsPayloadSchema } = require('./songs/schema');
 const { UserPayloadSchema } = require('./users/schema');

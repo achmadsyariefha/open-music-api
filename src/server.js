@@ -135,7 +135,8 @@ const init = async () => {
     {
       plugin: _exports,
       options: {
-        service: ProducerService,
+        ProducerService,
+        playlistsService,
         validator: ExportsValidator,
       },
     },
@@ -151,6 +152,9 @@ const init = async () => {
           message: response.message,
         });
         newResponse.code(response.statusCode);
+        if (response.statusCode === 404) {
+          console.error(newResponse);
+        }
         return newResponse;
       }
 
