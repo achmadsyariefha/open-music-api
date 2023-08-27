@@ -12,7 +12,7 @@ class Exportshandler {
   async postExportPlaylistsHandler(request, h) {
     this._validator.validateExportPlaylistsPayload(request.payload);
 
-    const { playlistId } = request.params;
+    const { id: playlistId } = request.params;
     const { id: userId } = request.auth.credentials;
 
     await this._playlistsService.verifyPlaylistAccess(playlistId, userId);
@@ -22,7 +22,7 @@ class Exportshandler {
       targetEmail: request.payload.targetEmail,
     };
 
-    await this._service.sendMessage('export:playlists', JSON.stringify(message));
+    await this._producerService.sendMessage('export:playlists', JSON.stringify(message));
 
     const response = h.response({
       status: 'success',

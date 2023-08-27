@@ -31,6 +31,9 @@ const CollaborationsService = require('./services/postgres/CollaborationsService
 const _exports = require('./api/exports');
 const ProducerService = require('./services/rabbitmq/ProducerService');
 
+// Cache
+const CacheService = require('./services/redis/CacheService');
+
 // Validator
 const {
   AlbumsValidator,
@@ -45,12 +48,13 @@ const {
 require('dotenv').config();
 
 const init = async () => {
+  const cacheService = new CacheService();
   const authenticationsService = new AuthenticationsService();
   const collaborationsService = new CollaborationsService();
   const albumsService = new AlbumsService();
-  const songsService = new SongsService();
+  const songsService = new SongsService(cacheService);
   const usersService = new UsersService();
-  const playlistsService = new PlaylistsService(collaborationsService);
+  const playlistsService = new PlaylistsService(collaborationsService, cacheService);
   const server = Hapi.Server({
     port: process.env.PORT,
     host: process.env.HOST,
@@ -135,7 +139,7 @@ const init = async () => {
     {
       plugin: _exports,
       options: {
-        ProducerService,
+        producerService: ProducerService,
         playlistsService,
         validator: ExportsValidator,
       },
@@ -152,9 +156,6 @@ const init = async () => {
           message: response.message,
         });
         newResponse.code(response.statusCode);
-        if (response.statusCode === 404) {
-          console.error(newResponse);
-        }
         return newResponse;
       }
 
@@ -167,6 +168,7 @@ const init = async () => {
         message: 'terjadi kegagalan pada server kami',
       });
       newResponse.code(500);
+      console.error(newResponse);
       return newResponse;
     }
 
