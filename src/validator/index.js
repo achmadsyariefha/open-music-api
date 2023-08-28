@@ -1,5 +1,5 @@
 const InvariantError = require('../exceptions/InvariantError');
-const { AlbumPayloadSchema } = require('./albums/schema');
+const { AlbumPayloadSchema, ImageHeadersSchema } = require('./albums/schema');
 const {
   PostAuthenticationPayloadSchema,
   PutAuthenticationPayloadSchema,
@@ -14,6 +14,12 @@ const { UserPayloadSchema } = require('./users/schema');
 const AlbumsValidator = {
   validateAlbumPayload: (payload) => {
     const validationResult = AlbumPayloadSchema.validate(payload);
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+  validateImageHeaders: (headers) => {
+    const validationResult = ImageHeadersSchema.validate(headers);
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message);
     }

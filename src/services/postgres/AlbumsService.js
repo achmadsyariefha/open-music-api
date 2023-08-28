@@ -157,6 +157,18 @@ class AlbumsService {
       return { count: JSON.parse(result.rows.length), source: 'database' };
     }
   }
+
+  async addAlbumCover(id, coverUrl) {
+    const query = {
+      text: 'UPDATE album SET "coverUrl" = $2 WHERE id = $1',
+      values: [id, coverUrl],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rows.length) {
+      throw new InvariantError('Cover Album tidak dapat ditambahkan');
+    }
+  }
 }
 
 module.exports = AlbumsService;

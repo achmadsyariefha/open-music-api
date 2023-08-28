@@ -1,5 +1,9 @@
+const path = require('path');
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+const Inert = require('@hapi/inert');
+
+// Error
 const ClientError = require('./exceptions/ClientError');
 
 // Albums
@@ -44,6 +48,7 @@ const {
   CollaborationsValidator,
   ExportsValidator,
 } = require('./validator');
+const StorageService = require('./services/storage/StorageService');
 
 require('dotenv').config();
 
@@ -55,6 +60,7 @@ const init = async () => {
   const songsService = new SongsService(cacheService);
   const usersService = new UsersService();
   const playlistsService = new PlaylistsService(collaborationsService);
+  const storageService = new StorageService(path.resolve(__dirname, 'api/albums/file/cover'));
   const server = Hapi.Server({
     port: process.env.PORT,
     host: process.env.HOST,
@@ -68,6 +74,9 @@ const init = async () => {
   await server.register([
     {
       plugin: Jwt,
+    },
+    {
+      plugin: Inert,
     },
   ]);
 
@@ -93,6 +102,7 @@ const init = async () => {
       options: {
         albumsService,
         songsService,
+        storageService,
         validator: AlbumsValidator,
       },
     },
@@ -156,6 +166,9 @@ const init = async () => {
           message: response.message,
         });
         newResponse.code(response.statusCode);
+        if (response.statusCode === 400) {
+          console.error(newResponse);
+        }
         return newResponse;
       }
 
