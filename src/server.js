@@ -51,10 +51,10 @@ const init = async () => {
   const cacheService = new CacheService();
   const authenticationsService = new AuthenticationsService();
   const collaborationsService = new CollaborationsService();
-  const albumsService = new AlbumsService();
+  const albumsService = new AlbumsService(cacheService);
   const songsService = new SongsService(cacheService);
   const usersService = new UsersService();
-  const playlistsService = new PlaylistsService(collaborationsService, cacheService);
+  const playlistsService = new PlaylistsService(collaborationsService);
   const server = Hapi.Server({
     port: process.env.PORT,
     host: process.env.HOST,

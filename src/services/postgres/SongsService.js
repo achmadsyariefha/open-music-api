@@ -31,38 +31,29 @@ class SongsService {
       throw new InvariantError('Lagu gagal ditambahkan');
     }
 
-    await this._cacheService.delete(`songs:${title}-${performer}`);
     return result.rows[0].id;
   }
 
   async getSongs(title, performer) {
-    try {
-      const result = await this._cacheService.get(`songs:${title}-${performer}`);
-      return JSON.parse(result);
-    } catch (error) {
-      if (title && performer) {
-        const query = {
-          text: 'SELECT id, title, performer FROM songs WHERE title ILIKE $1 AND performer ILIKE $2',
-          values: [`%${title}%`, `%${performer}%`],
-        };
-        const result = await this._pool.query(query);
-        await this._cacheService.set(`songs:${title}-${performer}`, JSON.stringify(result.rows));
-        return result.rows;
-      }
-
-      if (title || performer) {
-        const query = {
-          text: 'SELECT id, title, performer FROM songs WHERE title ILIKE $1 OR performer ILIKE $2',
-          values: [`%${title}%`, `%${performer}%`],
-        };
-        const result = await this._pool.query(query);
-        await this._cacheService.set(`songs:${title}-${performer}`, JSON.stringify(result.rows));
-        return result.rows;
-      }
-      const result = await this._pool.query('SELECT id, title, performer FROM songs');
-      await this._cacheService.set(`songs:${title}-${performer}`, JSON.stringify(result.rows));
+    if (title && performer) {
+      const query = {
+        text: 'SELECT id, title, performer FROM songs WHERE title ILIKE $1 AND performer ILIKE $2',
+        values: [`%${title}%`, `%${performer}%`],
+      };
+      const result = await this._pool.query(query);
       return result.rows;
     }
+
+    if (title || performer) {
+      const query = {
+        text: 'SELECT id, title, performer FROM songs WHERE title ILIKE $1 OR performer ILIKE $2',
+        values: [`%${title}%`, `%${performer}%`],
+      };
+      const result = await this._pool.query(query);
+      return result.rows;
+    }
+    const result = await this._pool.query('SELECT id, title, performer FROM songs');
+    return result.rows;
   }
 
   async getSongById(id) {
@@ -98,8 +89,6 @@ class SongsService {
     if (!result.rows.length) {
       throw new NotFoundError('Gagal memperbarui Lagu. Id tidak ditemukan');
     }
-
-    await this._cacheService.delete(`songs:${title}-${performer}`);
   }
 
   async deleteSongById(id) {
@@ -112,40 +101,37 @@ class SongsService {
     if (!result.rows.length) {
       throw new NotFoundError('Lagu gagal dihapus. Id tidak ditemukan');
     }
-
-    const { title, performer } = result.rows[0];
-    await this._cacheService.delete(`songs:${title}-${performer}`);
   }
 
   async getSongsByPlaylist(playlistId) {
+    const query = {
+      text: `SELECT songs.id, songs.title, songs.performer FROM songs
+        LEFT JOIN playlist_songs ON playlist_songs."songId" = songs.id
+        WHERE playlist_songs."playlistId" = $1`,
+      values: [playlistId],
+    };
+
+    const result = await this._pool.query(query);
+    return result.rows.map(mapDBToModelSongs);
+  }
+
+  async getSongsByAlbum(albumId) {
     try {
-      const result = await this._cacheService.get(`playlists:${playlistId}`);
+      const result = await this._cacheService.get(`album_songs:${albumId}`);
       return JSON.parse(result);
     } catch (error) {
       const query = {
-        text: `SELECT songs.id, songs.title, songs.performer FROM songs
-        LEFT JOIN playlist_songs ON playlist_songs."songId" = songs.id
-        WHERE playlist_songs."playlistId" = $1`,
-        values: [playlistId],
+        text: 'SELECT id, title, performer FROM songs WHERE "albumId" = $1',
+        values: [albumId],
       };
 
       const result = await this._pool.query(query);
       const mappedResult = result.rows.map(mapDBToModelSongs);
 
-      await this._cacheService.set(`playlists:${playlistId}`, JSON.stringify(mappedResult));
+      await this._cacheService.set(`album_songs:${albumId}`, JSON.stringify(mappedResult));
 
       return mappedResult;
     }
-  }
-
-  async getSongsByAlbum(albumId) {
-    const query = {
-      text: 'SELECT id, title, performer FROM songs WHERE "albumId" = $1',
-      values: [albumId],
-    };
-
-    const result = await this._pool.query(query);
-    return result.rows.map(mapDBToModelSongs);
   }
 }
 
