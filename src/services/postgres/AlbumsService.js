@@ -3,6 +3,7 @@ const { Pool } = require('pg');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 const { mapDBToModelAlbum } = require('../../utils');
+const ClientError = require('../../exceptions/ClientError');
 
 class AlbumsService {
   constructor(cacheService) {
@@ -83,18 +84,26 @@ class AlbumsService {
 
   async addAlbumLikes(userId, albumId) {
     const id = `album_likes-${nanoid(16)}`;
-    const query = {
-      text: 'INSERT INTO user_album_likes VALUES($1, $2, $3) RETURNING id',
-      values: [id, userId, albumId],
-    };
+    await this.getAlbumById(albumId);
 
-    const result = await this._pool.query(query);
-    if (!result.rows[0].id) {
-      throw new InvariantError('Gagal menambahkan Suka');
+    const checkLikes = await this.checkAlbumLikes(userId, albumId);
+
+    if (checkLikes) {
+      throw new ClientError('Anda sudah menyukai album ini');
+    } else {
+      const query = {
+        text: 'INSERT INTO user_album_likes VALUES($1, $2, $3) RETURNING id',
+        values: [id, userId, albumId],
+      };
+
+      const result = await this._pool.query(query);
+      if (!result.rows[0].id) {
+        throw new InvariantError('Gagal menambahkan Suka');
+      }
+
+      await this._cacheService.delete(`album_likes:${albumId}`);
+      return result.rows[0].id;
     }
-
-    await this._cacheService.delete(`album_likes:${albumId}`);
-    return result.rows[0].id;
   }
 
   async deleteAlbumLikes(userId, albumId) {

@@ -66,23 +66,11 @@ class AlbumHandler {
     const { id: userId } = request.auth.credentials;
 
     await this._albumsService.getAlbumById(id);
-    const checkLikes = await this._albumsService.checkAlbumLikes(userId, id);
 
-    if (!checkLikes) {
-      await this._albumsService.addAlbumLikes(userId, id);
-      const response = h.response({
-        status: 'success',
-        message: 'Like Album berhasil didaftarkan',
-      });
-
-      response.code(201);
-      return response;
-    }
-
-    await this._albumsService.deleteAlbumLikes(userId, id);
+    await this._albumsService.addAlbumLikes(userId, id);
     const response = h.response({
       status: 'success',
-      message: 'Batal menyukai album',
+      message: 'Like Album berhasil didaftarkan',
     });
 
     response.code(201);
