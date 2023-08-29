@@ -1,7 +1,10 @@
+require('dotenv').config();
+
 const path = require('path');
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
 const Inert = require('@hapi/inert');
+const config = require('./utils/config');
 
 // Error
 const ClientError = require('./exceptions/ClientError');
@@ -50,8 +53,6 @@ const {
 } = require('./validator');
 const StorageService = require('./services/storage/StorageService');
 
-require('dotenv').config();
-
 const init = async () => {
   const cacheService = new CacheService();
   const authenticationsService = new AuthenticationsService();
@@ -62,8 +63,8 @@ const init = async () => {
   const playlistsService = new PlaylistsService(collaborationsService);
   const storageService = new StorageService(path.resolve(__dirname, 'api/albums/file/cover'));
   const server = Hapi.Server({
-    port: process.env.PORT,
-    host: process.env.HOST,
+    port: config.app.port,
+    host: config.app.host,
     routes: {
       cors: {
         origin: ['*'],
@@ -166,9 +167,6 @@ const init = async () => {
           message: response.message,
         });
         newResponse.code(response.statusCode);
-        if (response.statusCode === 400) {
-          console.error(newResponse);
-        }
         return newResponse;
       }
 
@@ -181,7 +179,6 @@ const init = async () => {
         message: 'terjadi kegagalan pada server kami',
       });
       newResponse.code(500);
-      console.error(newResponse);
       return newResponse;
     }
 
@@ -189,9 +186,8 @@ const init = async () => {
   });
 
   await server.start();
-  /* eslint-disable no-console */
+
   console.log(`Server berjalan pada ${server.info.uri}`);
-  /* eslint-enable no-console */
 };
 
 init();

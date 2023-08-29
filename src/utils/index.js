@@ -4,10 +4,12 @@ const mapDBToModelAlbum = ({
   id,
   name,
   year,
+  coverUrl,
 }) => ({
   id,
   name,
   year,
+  coverUrl,
 });
 
 const mapDBToModelSongs = ({
