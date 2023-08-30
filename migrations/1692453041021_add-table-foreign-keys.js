@@ -1,7 +1,3 @@
-/* eslint-disable camelcase */
-
-exports.shorthands = undefined;
-
 exports.up = (pgm) => {
   // memberikan constraint foreign key pada owner username terhadap kolom id dari tabel users
   pgm.addConstraint('playlists', 'fk_playlist.username_users.id', 'FOREIGN KEY(username) REFERENCES users(id) ON DELETE CASCADE');

@@ -1,7 +1,3 @@
-/* eslint-disable camelcase */
-
-exports.shorthands = undefined;
-
 exports.up = (pgm) => {
   pgm.addColumn('album', {
     coverUrl: {
@@ -11,5 +7,5 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
-  pgm.dropColumn('album', '"coverUrl"');
+  pgm.dropColumn('album', 'coverUrl');
 };

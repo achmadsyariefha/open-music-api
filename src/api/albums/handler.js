@@ -81,8 +81,8 @@ class AlbumHandler {
 
   async getAlbumLikesHandler(request, h) {
     const { id: albumId } = request.params;
-    const data = await this._albumsService.getAlbumLikes(albumId);
-    const likes = data.count;
+    const { count, isCache } = await this._albumsService.getAlbumLikes(albumId);
+    const likes = count;
 
     const response = h.response({
       status: 'success',
@@ -92,7 +92,10 @@ class AlbumHandler {
     });
 
     response.code(200);
-    response.header('X-Data-Source', data.source);
+    if (isCache) {
+      response.header('X-Data-Source', 'cache');
+    }
+
     return response;
   }
 
@@ -108,12 +111,12 @@ class AlbumHandler {
   }
 
   async postUploadCoverAlbumHandler(request, h) {
-    const { cover } = request.payload;
+    const { cover: covers } = request.payload;
     const { id } = request.params;
-    this._validator.validateImageHeaders(cover.hapi.headers);
+    this._validator.validateImageHeaders(covers.hapi.headers);
 
-    const filename = await this._storageService.writeFile(cover, cover.hapi);
-    const coverUrl = `http://${config.app.host}:${config.app.port}/albums/cover/${filename}`;
+    const filename = await this._storageService.writeFile(covers, covers.hapi);
+    const coverUrl = `http://${config.app.host}:${config.app.port}/albums/${id}/covers/${filename}`;
 
     await this._albumsService.addAlbumCover(id, coverUrl);
 
